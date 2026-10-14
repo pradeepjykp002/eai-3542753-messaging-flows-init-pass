@@ -35,8 +35,11 @@ jobs:
         id: filters
         working-directory: modules/dataflows
         run: |
-          # Compare PR head against the merge base on release.
-          BASE=$(git merge-base origin/release HEAD)
+          # Compare PR head against the merge base on the PR base branch.
+          # actions/checkout does not fetch other remote branches by default, so fetch the base ref explicitly.
+          BASE_REF="${GITHUB_BASE_REF:-release}"
+          git fetch --no-tags --prune --depth=1 origin "$BASE_REF"
+          BASE=$(git merge-base "origin/$BASE_REF" HEAD)
           CHANGED=$(git diff --name-only "$BASE" HEAD -- modules/dataflows/)
 
           TEST_FILTERS=""
