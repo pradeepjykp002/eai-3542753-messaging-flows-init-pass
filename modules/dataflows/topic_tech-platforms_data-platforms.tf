@@ -13,7 +13,6 @@ module "topic_tech-platforms_data-platforms_cdc-dw-abi-batch_xml" {
   )
 
   confluent_cluster = local.tech-platforms_data-platforms_topic_cluster
-  flink_credentials = var.flink_credentials
 }
 
 module "topic_tech-platforms_data-platforms_cdc-dw-q001_xml" {
@@ -121,7 +120,6 @@ module "topic_tech-platforms_data-platforms_cdc-dw-q006_xml" {
   )
 
   confluent_cluster = local.tech-platforms_data-platforms_topic_cluster
-  flink_credentials = var.flink_credentials
 }
 
 module "topic_tech-platforms_data-platforms_cdc-dw-q007_xml" {
@@ -139,7 +137,6 @@ module "topic_tech-platforms_data-platforms_cdc-dw-q007_xml" {
   )
 
   confluent_cluster = local.tech-platforms_data-platforms_topic_cluster
-  flink_credentials = var.flink_credentials
 }
 
 module "topic_tech-platforms_data-platforms_cdc-dw-q008_xml" {
@@ -157,7 +154,6 @@ module "topic_tech-platforms_data-platforms_cdc-dw-q008_xml" {
   )
 
   confluent_cluster = local.tech-platforms_data-platforms_topic_cluster
-  flink_credentials = var.flink_credentials
 }
 
 module "topic_tech-platforms_data-platforms_cdc-dw-q009_xml" {
