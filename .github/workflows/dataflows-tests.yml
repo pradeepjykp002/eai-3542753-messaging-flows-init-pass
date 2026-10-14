@@ -25,6 +25,16 @@ jobs:
           repository: pradeepjykp002/eai-3542753-common-tools-init-pass
           path: eai-3542753-common-tools
 
+      - name: Alias identity pool module path (naming mismatch)
+        run: |
+          ln -sfn "$GITHUB_WORKSPACE/eai-3542753-common-tools/terraform/eai-identity-pool-acls" \
+            "$GITHUB_WORKSPACE/eai-3542753-common-tools/terraform/eai-identity-pool-access"
+
+      - name: Alias flink service account module path (naming mismatch)
+        run: |
+          ln -sfn "$GITHUB_WORKSPACE/eai-3542753-common-tools/terraform/flink-service-account" \
+            "$GITHUB_WORKSPACE/eai-3542753-common-tools/terraform/flink-service-account-access"
+
       - name: Link common-tools as sibling of workspace (for local module sources)
         run: |
           ln -sfn "$GITHUB_WORKSPACE/eai-3542753-common-tools" "$GITHUB_WORKSPACE/../eai-3542753-common-tools"
