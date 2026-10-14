@@ -4,6 +4,7 @@ on:
   pull_request:
     branches:
       - release
+      - release/test
     paths:
       - 'modules/dataflows/**'
       - '.github/workflows/dataflows-tests.yml'
