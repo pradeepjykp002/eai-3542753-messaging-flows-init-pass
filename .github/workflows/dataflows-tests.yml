@@ -1,0 +1,96 @@
+name: dataflows-tests
+
+on:
+  pull_request:
+    branches:
+      - release
+    paths:
+      - 'modules/dataflows/**'
+      - '.github/workflows/dataflows-tests.yml'
+
+jobs:
+  test:
+    name: Run dataflows OpenTofu tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout messaging-flows
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Checkout common-tools (required sibling module)
+        uses: actions/checkout@v4
+        with:
+          repository: pradeepjykp002/eai-3542753-common-tools-init-pass
+          path: eai-3542753-common-tools
+
+      - name: Install OpenTofu
+        uses: opentofu/setup-opentofu@v1
+
+      - name: Check formatting
+        run: tofu fmt -check -recursive
+
+      - name: Determine changed test files
+        id: filters
+        working-directory: modules/dataflows
+        run: |
+          # Compare PR head against the merge base on release.
+          BASE=$(git merge-base origin/release HEAD)
+          CHANGED=$(git diff --name-only "$BASE" HEAD -- modules/dataflows/)
+
+          TEST_FILTERS=""
+          RUN_ALL=false
+
+          for file in $CHANGED; do
+            # Strip the modules/dataflows/ prefix for easier matching.
+            rel="${file#modules/dataflows/}"
+
+            case "$rel" in
+              back-office/topic_*.tf|back-office/flink_statement_*.tf|commercial/topic_*.tf|commercial/flink_statement_*.tf)
+                # Derive portfolio_subportfolio from the folder and filename.
+                # e.g. back-office/topic_hr.tf           -> back-office_hr
+                #      commercial/flink_statement_billing.tf -> commercial_billing
+                folder=${rel%%/*}
+                base=$(basename "$rel" .tf)
+                subportfolio=${base#topic_}
+                subportfolio=${subportfolio#flink_statement_}
+                portfolio_subportfolio="${folder}_${subportfolio}"
+                filter="${portfolio_subportfolio}.tftest.hcl"
+                if [ -f "$filter" ]; then
+                  if [[ "$TEST_FILTERS" != *"$filter"* ]]; then
+                    TEST_FILTERS="$TEST_FILTERS -filter=$filter"
+                  fi
+                else
+                  # No dedicated test file exists for this subportfolio; run all tests.
+                  RUN_ALL=true
+                fi
+                ;;
+              back-office/*.tf|back-office/*.tftest.hcl|commercial/*.tf|commercial/*.tftest.hcl)
+                # Shared files inside a portfolio folder affect everything there.
+                RUN_ALL=true
+                ;;
+              *)
+                # Any other change in modules/dataflows (operations, tech-platforms, shared root files, etc.).
+                RUN_ALL=true
+                ;;
+            esac
+          done
+
+          if [ "$RUN_ALL" = "true" ]; then
+            echo "run_all=true" >> "$GITHUB_OUTPUT"
+            echo "test_args=" >> "$GITHUB_OUTPUT"
+          else
+            echo "run_all=false" >> "$GITHUB_OUTPUT"
+            echo "test_args=$TEST_FILTERS" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Initialise and run tests
+        working-directory: modules/dataflows
+        run: |
+          tofu init -backend=false -input=false
+          if [ "${{ steps.filters.outputs.run_all }}" = "true" ]; then
+            tofu test
+          else
+            # shellcheck disable=SC2086
+            tofu test ${{ steps.filters.outputs.test_args }}
+          fi
