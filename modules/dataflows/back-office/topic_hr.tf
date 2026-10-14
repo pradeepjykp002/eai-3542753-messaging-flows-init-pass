@@ -27,7 +27,7 @@ module "topic_back-office_hr_timekeeping-punch-success_xml" {
   topic_config = merge(
     { cleanup_policy = "delete", retention_ms = 86400000 },
     local.is_not_dev ? { retention_ms = 259200000 } : {},
-    local.is_prod_like ? { partition_count = 15, retention_ms = 604800000 } : {}
+    local.is_prod_like ? { partition_count = 14, retention_ms = 604800000 } : {}
   )
 
   confluent_cluster = local.back-office_hr_topic_cluster
