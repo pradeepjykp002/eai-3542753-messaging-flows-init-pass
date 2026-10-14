@@ -3,7 +3,7 @@ module "topic_back-office_hr_timekeeping-punch-retry_xml" {
 
   env           = var.env
   portfolio     = "back-office"
-  sub_portfolio = "hr""
+  sub_portfolio = "hr"
   data_domain   = "timekeeping-punch-retry"
 
   topic_config = merge(
