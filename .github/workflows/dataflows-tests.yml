@@ -44,6 +44,15 @@ jobs:
           }
           EOF
 
+      - name: Allow optional service_account_id input for flink service account module (compat)
+        run: |
+          cat > "$GITHUB_WORKSPACE/eai-3542753-common-tools/terraform/flink-service-account/service_account_id.compat.tf" <<'EOF'
+          variable "service_account_id" {
+            type    = any
+            default = null
+          }
+          EOF
+
       - name: Link common-tools as sibling of workspace (for local module sources)
         run: |
           ln -sfn "$GITHUB_WORKSPACE/eai-3542753-common-tools" "$GITHUB_WORKSPACE/../eai-3542753-common-tools"
