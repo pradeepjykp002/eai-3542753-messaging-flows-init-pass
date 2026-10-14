@@ -25,6 +25,10 @@ jobs:
           repository: pradeepjykp002/eai-3542753-common-tools-init-pass
           path: eai-3542753-common-tools
 
+      - name: Link common-tools as sibling of workspace (for local module sources)
+        run: |
+          ln -sfn "$GITHUB_WORKSPACE/eai-3542753-common-tools" "$GITHUB_WORKSPACE/../eai-3542753-common-tools"
+
       - name: Install OpenTofu
         uses: opentofu/setup-opentofu@v1
 
