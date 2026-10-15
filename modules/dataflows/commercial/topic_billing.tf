@@ -21,7 +21,7 @@ module "topic_commercial_billing_autocoder-coding_xml" {
 
   env           = var.env
   portfolio     = "commercial"
-  sub_portfolio = "billing"
+  sub_portfolio = "billingg"
   data_domain   = "autocoder-coding"
 
   topic_config = merge(
