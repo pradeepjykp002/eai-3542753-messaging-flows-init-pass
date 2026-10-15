@@ -72,14 +72,13 @@ jobs:
           BASE_REF="${GITHUB_BASE_REF:-release}"
           git fetch --no-tags --prune --depth=1 origin "$BASE_REF"
           BASE=$(git merge-base "origin/$BASE_REF" HEAD)
-          CHANGED=$(git diff --name-only "$BASE" HEAD -- modules/dataflows/)
+          CHANGED=$(git diff --name-only "$BASE" HEAD -- .)
 
           TEST_FILTERS=""
           RUN_ALL=false
 
           for file in $CHANGED; do
-            # Strip the modules/dataflows/ prefix for easier matching.
-            rel="${file#modules/dataflows/}"
+            rel="$file"
 
             case "$rel" in
               back-office/topic_*.tf|back-office/flink_statement_*.tf|commercial/topic_*.tf|commercial/flink_statement_*.tf)
@@ -116,8 +115,13 @@ jobs:
             echo "run_all=true" >> "$GITHUB_OUTPUT"
             echo "test_args=" >> "$GITHUB_OUTPUT"
           else
-            echo "run_all=false" >> "$GITHUB_OUTPUT"
-            echo "test_args=$TEST_FILTERS" >> "$GITHUB_OUTPUT"
+            if [ -z "$TEST_FILTERS" ]; then
+              echo "run_all=true" >> "$GITHUB_OUTPUT"
+              echo "test_args=" >> "$GITHUB_OUTPUT"
+            else
+              echo "run_all=false" >> "$GITHUB_OUTPUT"
+              echo "test_args=$TEST_FILTERS" >> "$GITHUB_OUTPUT"
+            fi
           fi
 
       - name: Initialise and run tests
